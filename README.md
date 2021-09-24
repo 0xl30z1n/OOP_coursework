@@ -2,10 +2,11 @@
 
 ## Etapas:
 
-1. Objetivos e requisitos de sistemas (funcionais e não funcionais);
+1. Objetivos e requisitos de sistemas (funcionais e não funcionais), aplicação dos conceitos passados em sala;
 2. Design: modelagem de dados e software (arquitetura);
 3. Desenho da modelagem;
 4. Estrutura da API; 
+5.
 
 ## Ferramentas:
 - Linguagem: Java;
