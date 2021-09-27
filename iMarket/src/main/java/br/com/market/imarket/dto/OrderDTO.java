@@ -1,11 +1,11 @@
-package br.com.market.imarket.model;
+package br.com.market.imarket.dto;
 
 
-public class Order {
+public class OrderDTO {
     private Long id;
     private float value;
 
-    public Order(Long id, float value) {
+    public OrderDTO(Long id, float value) {
         this.id = id;
         this.value = value;
     }

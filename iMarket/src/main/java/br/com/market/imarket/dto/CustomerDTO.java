@@ -1,6 +1,6 @@
-package br.com.market.imarket.model;
+package br.com.market.imarket.dto;
 
-public class Customer {
+public class CustomerDTO {
     private Long id;
     private String name;
     private String email;

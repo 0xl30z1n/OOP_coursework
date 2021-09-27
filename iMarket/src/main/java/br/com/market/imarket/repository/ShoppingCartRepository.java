@@ -1,4 +1,6 @@
 package br.com.market.imarket.repository;
 
-public interface ShoppingCartRepository {
+import org.springframework.data.repository.CrudRepository;
+
+public interface ShoppingCartRepository extends CrudRepository {
 }

@@ -1,23 +1,22 @@
 package br.com.market.imarket.model;
 
-public class PaymentMethod {
-
+public class Section {
     private Long id;
-    private String name;
+    private String sectionName;
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getSectionName() {
+        return sectionName;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.sectionName = name;
     }
 }

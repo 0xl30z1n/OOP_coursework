@@ -1,9 +1,6 @@
-package br.com.market.imarket.model;
+package br.com.market.imarket.dto;
 
-import javax.persistence.*;
-
-
-public class Product {
+public class ProductDTO {
 
     private Long id;
     private String name;

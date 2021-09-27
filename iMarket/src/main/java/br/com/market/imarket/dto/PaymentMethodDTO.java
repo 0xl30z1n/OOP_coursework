@@ -1,6 +1,6 @@
-package br.com.market.imarket.model;
+package br.com.market.imarket.dto;
 
-public class PaymentMethod {
+public class PaymentMethodDTO {
 
     private Long id;
     private String name;
