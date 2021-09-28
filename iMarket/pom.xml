@@ -8,11 +8,11 @@
         <version>2.5.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>br.com.market.imarket</groupId>
-    <artifactId>iMarket</artifactId>
+    <groupId>br.iesb</groupId>
+    <artifactId>imarket</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>iMarket</name>
-    <description>iMarket</description>
+    <name>imarket</name>
+    <description>imarket</description>
     <properties>
         <java.version>11</java.version>
     </properties>
@@ -21,26 +21,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api -->
-        <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
-            <version>2.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.26</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-jpa</artifactId>
-            <version>2.5.5</version>
-        </dependency>
-
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
