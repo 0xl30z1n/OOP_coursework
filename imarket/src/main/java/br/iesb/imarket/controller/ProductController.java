@@ -88,7 +88,7 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
     @DeleteMapping("/delete-productBrand")
-    public ResponseEntity<String> deleteProductBrand(@RequestParam String brand){
+    public ResponseEntity<String> deleteProductBrand(@RequestParam(value="brand") String brand){
         service.serviceDelBrand(brand);
         return ResponseEntity.ok().build();
     }
