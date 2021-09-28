@@ -68,7 +68,7 @@ public class ProductController {
     }
 
     @PutMapping("/put-promotionAllProducts")
-    public ResponseEntity<String> putProductCategory(@RequestParam(value="percent") float percent){
+    public ResponseEntity<String> putProductAll(@RequestParam(value="percent") float percent){
         service.updatePromotionAll(percent);
         return ResponseEntity.ok().build();
     }
