@@ -87,10 +87,14 @@ public class ProductEntity {
         this.brand = brand;
     }
 
-    public float getPrice() {
+    public float getPriceDto() {
         if(this.promotion == true){
             return price - (price * percent);
         }
+        return price;
+    }
+
+    public float getPrice(){
         return price;
     }
 

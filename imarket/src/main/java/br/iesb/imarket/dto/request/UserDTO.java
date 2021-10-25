@@ -1,4 +1,4 @@
-package br.iesb.imarket.dto;
+package br.iesb.imarket.dto.request;
 
 public class UserDTO {
     private String name;

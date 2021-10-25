@@ -1,5 +1,6 @@
 package br.iesb.imarket.repository;
 
+import br.iesb.imarket.exception.ProductNotFoundException;
 import br.iesb.imarket.model.ProductEntity;
 import org.springframework.stereotype.Repository;
 
@@ -28,7 +29,7 @@ public class ProductRepository {
     public List<ProductEntity> getProductsBrand(String brand){
         List<ProductEntity> productsBrand = new ArrayList<>();
         for(ProductEntity aux : bankSimulator){
-            if(aux.getCategory().equals(brand)){
+            if(aux.getBrand().equals(brand)){
                 productsBrand.add(aux);
             }
         }
@@ -65,13 +66,13 @@ public class ProductRepository {
 
         while(pivor != aux){
             if(pivor < aux){
-                if(vet.get(pivor).getPrice() > vet.get(aux).getPrice()){
+                if(vet.get(pivor).getPriceDto() > vet.get(aux).getPriceDto()){
                     swap(vet,pivor,aux);
                 }else{
                     aux--;
                 }
             }else{
-                if(vet.get(pivor).getPrice() < vet.get(aux).getPrice()){
+                if(vet.get(pivor).getPriceDto() < vet.get(aux).getPriceDto()){
                     swap(vet,pivor,aux);
                 }else{
                     aux++;
@@ -91,9 +92,9 @@ public class ProductRepository {
         productAux.setUpdate(vet.get(pivor).getUpdate());
         productAux.setDescription(vet.get(pivor).getDescription());
         productAux.setQuantity(vet.get(pivor).getQuantity());
+        productAux.setPrice(vet.get(pivor).getPrice());
         productAux.setPromotion(vet.get(pivor).isPromotion());
         productAux.setPercent(vet.get(pivor).getPercent());
-        productAux.setPrice(vet.get(pivor).getPrice());
 
         vet.get(pivor).setName(vet.get(aux).getName());
         vet.get(pivor).setBrand(vet.get(aux).getBrand());
@@ -103,11 +104,11 @@ public class ProductRepository {
         vet.get(pivor).setUpdate(vet.get(aux).getUpdate());
         vet.get(pivor).setDescription(vet.get(aux).getDescription());
         vet.get(pivor).setQuantity(vet.get(aux).getQuantity());
+        vet.get(pivor).setPrice(vet.get(aux).getPrice());
         vet.get(pivor).setPromotion(vet.get(aux).isPromotion());
         vet.get(pivor).setPercent(vet.get(aux).getPercent());
-        vet.get(pivor).setPrice(vet.get(aux).getPrice());
 
-        vet.get(aux).setName(vet.get(aux).getName());
+        vet.get(aux).setName(productAux.getName());
         vet.get(aux).setBrand(productAux.getBrand());
         vet.get(aux).setId(productAux.getId());
         vet.get(aux).setCategory(productAux.getCategory());
@@ -115,70 +116,85 @@ public class ProductRepository {
         vet.get(aux).setUpdate(productAux.getUpdate());
         vet.get(aux).setDescription(productAux.getDescription());
         vet.get(aux).setQuantity(productAux.getQuantity());
+        vet.get(aux).setPrice(productAux.getPrice());
         vet.get(aux).setPromotion(productAux.isPromotion());
         vet.get(aux).setPercent(productAux.getPercent());
-        vet.get(aux).setPrice(productAux.getPrice());
     }
     public void saveProduct(ProductEntity product){
-        product.setId(bankSimulator.size()+1);
+        if(bankSimulator.size() == 0){
+            product.setId(1);
+        }else {
+            product.setId(bankSimulator.get(bankSimulator.size() - 1).getId() + 1);
+        }
         bankSimulator.add(product);
     }
 
-    public boolean updateProduct(long id, ProductEntity product){
-        boolean aux = false;
-        for(int i = 0; i < bankSimulator.size()-1 && !aux; i++){
-            if(bankSimulator.get(i).getId() == id){
-                bankSimulator.get(i).setName(product.getName());
-                bankSimulator.get(i).setBrand(product.getBrand());
-                bankSimulator.get(i).setDescription(product.getDescription());
-                bankSimulator.get(i).setQuantity(product.getQuantity());
-                bankSimulator.get(i).setCategory(product.getCategory());
-                bankSimulator.get(i).setPromotion(product.isPromotion());
-                if(product.isPromotion() == true){
-                    bankSimulator.get(i).setPercent(product.getPercent());
+    public int updateProduct(long id, ProductEntity product){
+        int aux = -1;
+
+        for(ProductEntity productAux: bankSimulator){
+            if(productAux.getId() == id) {
+                productAux.setName(product.getName());
+                productAux.setBrand(product.getBrand());
+                productAux.setDescription(product.getDescription());
+                productAux.setQuantity(product.getQuantity());
+                productAux.setCategory(product.getCategory());
+                productAux.setPromotion(product.isPromotion());
+                if (product.isPromotion() == true) {
+                    productAux.setPercent(product.getPercent());
                 }
-                bankSimulator.get(i).setPrice(product.getPrice());
+                productAux.setPrice(product.getPrice());
                 Date data = new Date();
-                bankSimulator.get(i).setUpdate(data);
-                aux = true;
+                productAux.setUpdate(data);
+                aux = 0;
+                return aux;
             }
         }
         return aux;
     }
 
-    public void updatePromotionProductCategory(String category, float percent){
-        for(int i = 0; i < bankSimulator.size()-1; i++){
-            if(bankSimulator.get(i).getCategory().equals(category)){
-                bankSimulator.get(i).setPromotion(true);
-                bankSimulator.get(i).setPercent(percent);
+    public int updatePromotionProductCategory(String category, float percent){
+        int verificador = -1;
+        for(ProductEntity aux: bankSimulator){
+            if(aux.getCategory().equals(category)){
+                aux.setPromotion(true);
+                aux.setPercent(percent);
                 Date data = new Date();
-                bankSimulator.get(i).setUpdate(data);
+                aux.setUpdate(data);
+                verificador = 0;
             }
         }
+        return verificador;
     }
 
-    public void updatePromotionProductBrand(String brand, float percent){
-        for(int i = 0; i < bankSimulator.size()-1; i++){
-            if(bankSimulator.get(i).getCategory().equals(brand)){
-                bankSimulator.get(i).setPromotion(true);
-                bankSimulator.get(i).setPercent(percent);
+    public int updatePromotionProductBrand(String brand, float percent){
+        int verificador = -1;
+        for(ProductEntity aux: bankSimulator){
+            if(aux.getBrand().equals(brand)){
+                aux.setPromotion(true);
+                aux.setPercent(percent);
                 Date data = new Date();
-                bankSimulator.get(i).setUpdate(data);
+                aux.setUpdate(data);
+                verificador = 0;
             }
         }
+        return verificador;
     }
 
-    public void updatePromotionProduct(float percent){
-        for(int i = 0; i < bankSimulator.size()-1; i++){
-            bankSimulator.get(i).setPromotion(true);
-            bankSimulator.get(i).setPercent(percent);
+    public int updatePromotionProduct(float percent){
+        int verificador = -1;
+        for(ProductEntity aux: bankSimulator){
+            aux.setPromotion(true);
+            aux.setPercent(percent);
             Date data = new Date();
-            bankSimulator.get(i).setUpdate(data);
+            aux.setUpdate(data);
+            verificador = 0;
         }
+        return verificador;
     }
 
-    public int deleteProduct(long id){
-        for(int i = 0; i < bankSimulator.size()-1; i++){
+    public int deleteProduct(long id) throws ProductNotFoundException {
+        for(int i = 0; i <= bankSimulator.size()-1; i++){
             if(bankSimulator.get(i).getId() == id){
                 bankSimulator.remove(i);
                 return 0;
@@ -187,23 +203,30 @@ public class ProductRepository {
         return 1;
     }
 
-    public void deleteProductCategory(String category){
-        for(int i = 0; i < bankSimulator.size()-1; i++){
+    public int deleteProductCategory(String category){
+        int aux = 0;
+        for(int i = 0; i <= bankSimulator.size()-1; i++){
             if(bankSimulator.get(i).getCategory().equals(category)){
                 bankSimulator.remove(i);
+                aux = 1;
             }
         }
+        return aux;
     }
 
-    public void deleteProductBrand(String brand){
-        for(int i = 0; i < bankSimulator.size()-1; i++){
-            if(bankSimulator.get(i).getCategory().equals(brand)){
+    public int deleteProductBrand(String brand) {
+        int aux = 0;
+        for (int i = 0; i <= bankSimulator.size() - 1; i++) {
+            if (bankSimulator.get(i).getBrand().equals(brand)) {
                 bankSimulator.remove(i);
+                aux = 1;
             }
         }
+        return aux;
     }
 
     public void deleteAll(){
+
         bankSimulator.clear();
     }
 }

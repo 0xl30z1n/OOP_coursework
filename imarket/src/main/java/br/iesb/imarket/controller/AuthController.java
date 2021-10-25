@@ -1,8 +1,10 @@
 package br.iesb.imarket.controller;
 
-import br.iesb.imarket.dto.UserDTO;
+import br.iesb.imarket.dto.request.UserDTO;
+import br.iesb.imarket.dto.response.MessageResponseDTO;
 import br.iesb.imarket.service.AuthService;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,30 +13,34 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuthController {
     private AuthService service = new AuthService();
-
+    private MessageResponseDTO message = new MessageResponseDTO();
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody UserDTO user){
-        int result = service.signup_adm(user);
+    public ResponseEntity<MessageResponseDTO> signup(@RequestBody UserDTO user){
+        int result = service.signup(user);
 
         switch (result){
             case 1:
-                return ResponseEntity.badRequest().body("Nome do usuario invaalido!");
+                message.setMessage("Nome do usuario inválido!");
+                return ResponseEntity.badRequest().body(message);
             case 2:
-                return ResponseEntity.badRequest().body("E-mail do usuario inválido!");
+                message.setMessage("E-mail do usuario inválido!");
+                return ResponseEntity.badRequest().body(message);
             case 3:
-                return ResponseEntity.badRequest().body("Senha do usuario inválida!");
+                message.setMessage("Senha do usuario inválida!");
+                return ResponseEntity.badRequest().body(message);
             default:
                 break;
         }
-        return ResponseEntity.ok().build();
+        message.setMessage("User created");
+        return ResponseEntity.status(HttpStatus.CREATED).body(message);
     }
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserDTO user){
-        String token = service.login_adm(user);
+        String token = service.login(user);
 
         if(token == null){
-            ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();
         }
         HttpHeaders responseHeader = new HttpHeaders();
         responseHeader.add("Autortization",token);
