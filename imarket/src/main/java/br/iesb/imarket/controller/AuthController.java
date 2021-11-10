@@ -3,6 +3,8 @@ package br.iesb.imarket.controller;
 import br.iesb.imarket.dto.request.UserDTO;
 import br.iesb.imarket.dto.response.MessageResponseDTO;
 import br.iesb.imarket.service.AuthService;
+import br.iesb.imarket.validators.EmailValidator;
+import br.iesb.imarket.validators.Validate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,9 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<MessageResponseDTO> signup(@RequestBody UserDTO user){
+        Validate emailValidator = new EmailValidator();
+
+
         int result = service.signup(user);
 
         switch (result){

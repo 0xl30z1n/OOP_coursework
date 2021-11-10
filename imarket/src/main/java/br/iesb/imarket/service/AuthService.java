@@ -1,7 +1,7 @@
 package br.iesb.imarket.service;
 
 import br.iesb.imarket.dto.request.UserDTO;
-import br.iesb.imarket.model.UserEntity;
+import br.iesb.imarket.model.User;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -10,13 +10,13 @@ import java.util.UUID;
 
 @Service
 public class AuthService {
-    private  List<UserEntity> users = new ArrayList<>();
+    private  List<User> users = new ArrayList<>();
 
     public String login(UserDTO user){
         String email = user.getEmail();
         String password = user.getPassword();
 
-        for(UserEntity u : users){
+        for(User u : users){
             if(u.getEmail().equals(email) && u.getPassword().equals(password)){
                 return u.getToken();
             }
@@ -34,7 +34,7 @@ public class AuthService {
         if(user.getPassword().length() < 6 || firstVerifyNumber(user.getPassword().trim()) || firstVerifySpecial(user.getPassword().trim()) || !(user.getPassword().trim().substring(0,1).equals(user.getPassword().trim().substring(0,1).toUpperCase())) || !verifyNumber(user.getPassword().trim()) || !verifySpecial(user.getPassword().trim())){
             return 3;
         }
-        UserEntity entity = new UserEntity();
+        User entity = new User();
         entity.setName(user.getName());
         entity.setEmail(user.getEmail());
         entity.setPassword(user.getPassword());

@@ -5,7 +5,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "product")
-public class ProductEntity {
+public class Product {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,39 +30,42 @@ public class ProductEntity {
     private float percent;
 
     @Column(name = "create", nullable = true)
-    private Date create;
+    private Date creationDate;
 
     @Column(name = "update", nullable = true)
-    private Date update;
+    private Date updatingDate;
 
     @Column(name = "promotion", nullable = false)
     private boolean promotion;
 
-    @Column(name = "category", nullable = false)
-    private String category;
 
-    public String getCategory() {
+//    @Column(name = "category", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "category_id")
+    private Category category;
+
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 
-    public Date getCreate() {
-        return create;
+    public Date getCreationDate() {
+        return creationDate;
     }
 
-    public void setCreate(Date create) {
-        this.create = create;
+    public void setCreationDate(Date create) {
+        this.creationDate = create;
     }
 
-    public Date getUpdate() {
-        return update;
+    public Date getUpdatingDate() {
+        return updatingDate;
     }
 
-    public void setUpdate(Date update) {
-        this.update = update;
+    public void setUpdatingDate(Date update) {
+        this.updatingDate = update;
     }
 
     public boolean isPromotion() {

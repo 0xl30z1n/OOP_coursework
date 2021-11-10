@@ -59,54 +59,54 @@ public class ProductController {
         return ResponseEntity.ok(listProductsDtos);
     }
 
-    @PostMapping("/saveProduct")
+    @PostMapping("/products/save")
     public ResponseEntity<MessageResponseDTO> postProducts(@RequestBody ProductDTO product){
         service.saveProduct(product);
         message.setMessage("Product created");
         return ResponseEntity.status(HttpStatus.CREATED).body(message);
     }
 
-    @PutMapping("/updateProduct")
+    @PutMapping("/products/update")
     public ResponseEntity<MessageResponseDTO> putProduct(@RequestParam(value="id") long id, @RequestBody ProductDTO productDto) throws ProductNotFoundException{
         service.updateProduct(id,productDto);
         message.setMessage("Product updated");
         return ResponseEntity.status(HttpStatus.OK).body(message);
     }
-    @PutMapping("/updateProduct/promotionCategory")
+    @PutMapping("/products/update/promotionCategory")
     public ResponseEntity<MessageResponseDTO> putProductsCategory(@RequestParam(value="category")  String category, @RequestParam(value="percent")  float percent){
         service.updatePromotionCategory(category,percent);
         message.setMessage("Updated products");
         return ResponseEntity.ok().body(message);
     }
-    @PutMapping("/updateProduct/promotionBrand")
+    @PutMapping("/products/update/promotionBrand")
     public ResponseEntity<MessageResponseDTO> putProductsBrand(@RequestParam(value="brand") String brand, @RequestParam(value="percent") float percent){
         service.updatePromotionBrand(brand,percent);
         message.setMessage("Updated products");
         return ResponseEntity.ok().body(message);
     }
-    @PutMapping("/updateProduct/promotionAll")
+    @PutMapping("/products/update/promotionAll")
     public ResponseEntity<MessageResponseDTO> putProductAll(@RequestParam(value="percent") float percent){
         service.updatePromotionAll(percent);
         message.setMessage("Updated products");
         return ResponseEntity.ok().body(message);
     }
 
-    @DeleteMapping("/deleteProduct")
+    @DeleteMapping("/products/delete")
     public ResponseEntity<MessageResponseDTO> deleteProduct(@RequestParam(value="id") Long id) throws ProductNotFoundException{
         service.serviceDel(id);
         return ResponseEntity.noContent().build();
     }
-    @DeleteMapping("/deleteProduct/category")
+    @DeleteMapping("/products/delete/category")
     public ResponseEntity<MessageResponseDTO> deleteProductCategory(@RequestParam(value="category") String category) throws ProductNotFoundException{
         service.serviceDelCategory(category);
         return ResponseEntity.noContent().build();
     }
-    @DeleteMapping("/deleteProduct/brand")
+    @DeleteMapping("/products/delete/brand")
     public ResponseEntity<MessageResponseDTO> deleteProductBrand(@RequestParam(value="brand") String brand){
         service.serviceDelBrand(brand);
         return ResponseEntity.noContent().build();
     }
-    @DeleteMapping("/deleteProduct/all")
+    @DeleteMapping("/products/delete/all")
     public ResponseEntity<MessageResponseDTO> deleteProductAll(){
         service.serviceDelAll();
         return ResponseEntity.noContent().build();

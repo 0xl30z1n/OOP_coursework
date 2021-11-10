@@ -1,31 +1,30 @@
 package br.iesb.imarket.model;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ShopcartEntity {
+public class ShopCart {
 
-    private List<ShopcartItemEntity> items;
+    private List<ShopCartItem> items;
 
     private float total;
 
     private Date lastModification;
 
-    public ShopcartEntity(List<ShopcartItemEntity> items, float total, Date lastModification) {
+    public ShopCart(List<ShopCartItem> items, float total, Date lastModification) {
         this.items = items;
         this.total = total;
         this.lastModification = lastModification;
     }
 
-    public ShopcartEntity(){
+    public ShopCart(){
     }
 
-    public List<ShopcartItemEntity> getItems() {
+    public List<ShopCartItem> getItems() {
         return items;
     }
 
-    public void setItems(List<ShopcartItemEntity> items) {
+    public void setItems(List<ShopCartItem> items) {
         this.items = items;
     }
 
