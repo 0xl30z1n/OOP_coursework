@@ -1,5 +1,7 @@
 package br.iesb.imarket.dto.request;
 
+import br.iesb.imarket.model.Category;
+
 public class ProductDTO {
     private String name;
     private String brand;
@@ -8,8 +10,8 @@ public class ProductDTO {
     private String description;
     private boolean promotion;
     private float percent;
-    private String category;
-    public ProductDTO(String name, String brand, float price, int quantity, String description, boolean promotion, float percent, String category) {
+    private Category category;
+    public ProductDTO(String name, String brand, float price, int quantity, String description, boolean promotion, float percent, Category category) {
         this.name = name;
         this.brand = brand;
         this.price = price;
@@ -22,11 +24,11 @@ public class ProductDTO {
 
     public ProductDTO(){
     }
-    public String getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 

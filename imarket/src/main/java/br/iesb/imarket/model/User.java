@@ -2,7 +2,7 @@ package br.iesb.imarket.model;
 
 import java.util.Date;
 
-public class UserEntity {
+public class User {
     private String name;
     private String email;
     private String password;

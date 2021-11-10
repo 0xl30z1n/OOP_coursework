@@ -1,6 +1,6 @@
 package br.iesb.imarket.dto.request;
 
-import br.iesb.imarket.model.ShopcartItemEntity;
+import br.iesb.imarket.model.ShopCartItem;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -8,13 +8,13 @@ import java.util.List;
 
 public class ShopcartDTO {
 
-    private List<ShopcartItemEntity> items = new ArrayList<>();
+    private List<ShopCartItem> items = new ArrayList<>();
 
     private float total;
 
     private Date lastModification;
 
-    public ShopcartDTO(List<ShopcartItemEntity> items, float total, Date lastModification) {
+    public ShopcartDTO(List<ShopCartItem> items, float total, Date lastModification) {
         this.items = items;
         this.total = total;
         this.lastModification = lastModification;
@@ -23,11 +23,11 @@ public class ShopcartDTO {
     public ShopcartDTO(){
     }
 
-    public List<ShopcartItemEntity> getItems() {
+    public List<ShopCartItem> getItems() {
         return items;
     }
 
-    public void setItems(List<ShopcartItemEntity> items) {
+    public void setItems(List<ShopCartItem> items) {
         this.items = items;
     }
 

@@ -1,17 +1,17 @@
 package br.iesb.imarket.model;
 
-public class ShopcartItemEntity {
+public class ShopCartItem {
 
     private Long id;
 
     private int quantity;
 
-    public ShopcartItemEntity(Long id, int quantity) {
+    public ShopCartItem(Long id, int quantity) {
         this.id = id;
         this.quantity = quantity;
     }
 
-    public ShopcartItemEntity(){
+    public ShopCartItem(){
     }
 
     public long getId() {
