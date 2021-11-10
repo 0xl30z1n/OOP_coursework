@@ -9,7 +9,19 @@ public class ProductDTO {
     private boolean promotion;
     private float percent;
     private String category;
+    public ProductDTO(String name, String brand, float price, int quantity, String description, boolean promotion, float percent, String category) {
+        this.name = name;
+        this.brand = brand;
+        this.price = price;
+        this.quantity = quantity;
+        this.description = description;
+        this.promotion = promotion;
+        this.percent = percent;
+        this.category = category;
+    }
 
+    public ProductDTO(){
+    }
     public String getCategory() {
         return category;
     }

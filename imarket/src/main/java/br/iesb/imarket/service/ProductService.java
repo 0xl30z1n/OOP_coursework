@@ -3,136 +3,139 @@ package br.iesb.imarket.service;
 import br.iesb.imarket.dto.request.ProductDTO;
 import br.iesb.imarket.exception.ProductNotFoundException;
 import br.iesb.imarket.model.ProductEntity;
+import br.iesb.imarket.repository.ProdRepository;
 import br.iesb.imarket.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ProductService {
 
-    private ProductRepository productRepo = new ProductRepository();
-    private ProductDTO dto;
-    private List<ProductDTO> listProducts;
-    private ProductEntity aux;
+    @Autowired
+    private ProdRepository repository;
+
+    @Autowired
+    private ProductRepository productRepo;
 
     public List<ProductDTO> getProduct(){
-        listProducts = new ArrayList<>();
+        List<ProductDTO> listProducts = new ArrayList<>();
+        Iterator<ProductEntity> resultBank = repository.findAll().iterator();
 
-        List<ProductEntity> aux = productRepo.getProducts();
-        entity_dto(listProducts, aux);
-
+        while(resultBank.hasNext()){
+            ProductEntity productEntity = resultBank.next();
+            ProductDTO productDTO = new ProductDTO(productEntity.getName(),productEntity.getBrand(),productEntity.getPriceDto(),productEntity.getQuantity(),productEntity.getDescription(),productEntity.isPromotion(),productEntity.getPercent(),productEntity.getCategory());
+            listProducts.add(productDTO);
+        }
         return listProducts;
     }
 
     public List<ProductDTO> getProductCategory(String category){
-        listProducts = new ArrayList<>();
+        List<ProductDTO> listProducts = new ArrayList<>();
+        Optional<List<ProductEntity>> resultBank = repository.findByCategoryContaining(category);
+        entityForDto(listProducts,resultBank);
 
-        List<ProductEntity> aux = productRepo.getProductsCategory(category);
-        entity_dto(listProducts, aux);
         return listProducts;
     }
 
     public List<ProductDTO> getProductBrand(String brand){
-        listProducts = new ArrayList<>();
+        List<ProductDTO> listProducts = new ArrayList<>();
+        Optional<List<ProductEntity>> resultBank = repository.findByBrandContaining(brand);
+        entityForDto(listProducts, resultBank);
 
-        List<ProductEntity> aux = productRepo.getProductsBrand(brand);
-        entity_dto(listProducts, aux);
         return listProducts;
     }
 
     public List<ProductDTO> getProductsPromotion(){
-        listProducts = new ArrayList<>();
+        List<ProductDTO> listProducts = new ArrayList<>();
+        Optional<List<ProductEntity>> resultBank = repository.getByPromotionIsTrue();
+        entityForDto(listProducts, resultBank);
 
-        List<ProductEntity> aux = productRepo.getProductsPromotion();
-        entity_dto(listProducts, aux);
         return listProducts;
     }
 
     public List<ProductDTO> getProductsCrescente(){
-        listProducts = new ArrayList<>();
+        List<ProductDTO> listProducts = new ArrayList<>();
 
         List<ProductEntity> aux = productRepo.getProductsCrescente();
-        entity_dto(listProducts, aux);
+        //entity_dto(listProducts, aux);
         return listProducts;
     }
 
     public int saveProduct(ProductDTO product){
-        aux = new ProductEntity();
+        ProductEntity aux = new ProductEntity();
 
-        int checker = productRules(product);
-        if (checker >= 1 && checker < 8)
-            return checker;
-
-        dto_entity(product, aux);
+        dtoForEntity(product, aux);
         Date data = new Date();
         aux.setCreate(data);
 
         productRepo.saveProduct(aux);
+        repository.save(aux);
         return 0;
     }
 
-    public int serviceDel(long id) throws ProductNotFoundException{
-        if(id <= 0){
-            return -1;
-        }
-        return productRepo.deleteProduct(id);
+    public void serviceDel(Long id) throws ProductNotFoundException{
+        verifyIfExists(id);
+        repository.deleteById(id);
     }
-    public int serviceDelCategory(String category){
-        if(verifyCategory(category)){
-            return -1;
+    public void serviceDelCategory(String category) throws ProductNotFoundException{
+        verifyIfCategoryExists(category);
+        Optional<List<ProductEntity>> resultBank = repository.findByCategoryContaining(category);
+        if (resultBank.isPresent()) {
+            List<ProductEntity> users = resultBank.get();
+            for (ProductEntity productEntity : users) {
+                repository.deleteById(productEntity.getId());
+            }
         }
-        return productRepo.deleteProductCategory(category);
     }
-    public int serviceDelBrand(String brand){
-        if(verifyBrand(brand)){
-            return -1;
+    public void serviceDelBrand(String brand){
+
+        Optional<List<ProductEntity>> resultBank = repository.findByBrandContaining(brand);
+        if (resultBank.isPresent()) {
+            List<ProductEntity> users = resultBank.get();
+            for (ProductEntity productEntity : users) {
+                repository.deleteById(productEntity.getId());
+            }
         }
-        return productRepo.deleteProductBrand(brand);
     }
     public void serviceDelAll(){
-        productRepo.deleteAll();
+        repository.deleteAll();
     }
 
-    public int updateProduct(long id, ProductDTO product) throws ProductNotFoundException{
-        aux = new ProductEntity();
+    public void updateProduct(long id, ProductDTO product) throws ProductNotFoundException{
+        ProductEntity aux = new ProductEntity();
 
-        int checker = productRules(product);
-        if (checker >= 1 && checker < 8)
-            return checker;
-
-        dto_entity(product, aux);
-
-        return productRepo.updateProduct(id,aux);
+        verifyIfExists(id);
+        aux.setId(id);
+        dtoForEntity(product, aux);
+        repository.save(aux);
     }
 
-    public int updatePromotionCategory(String category, float percent){
-        if(verifyCategory(category)){
-            return 1;
-        }
-        if(verifyPercent(percent)){
-            return 2;
-        }
-        return productRepo.updatePromotionProductCategory(category,percent);
+    public void updatePromotionCategory(String category, float percent){
+        Optional<List<ProductEntity>> resultBank = repository.findByCategoryContaining(category);
+        changePercent(percent,resultBank);
     }
 
-    public int updatePromotionBrand(String brand, float percent){
-        if(verifyBrand(brand)){
-            return 1;
-        }
-        if(verifyPercent(percent)){
-            return 2;
-        }
-        return productRepo.updatePromotionProductBrand(brand,percent);
+    public void updatePromotionBrand(String brand, float percent){
+        Optional<List<ProductEntity>> resultBank = repository.findByBrandContaining(brand);
+        changePercent(percent,resultBank);
     }
 
-    public int updatePromotionAll(float percent){
-        if(verifyPercent(percent)){
-            return 1;
+    public void updatePromotionAll(float percent){
+        Optional<List<ProductEntity>> resultBank = repository.getByPromotionIsTrue();
+        changePercent(percent, resultBank);
+    }
+
+
+    private void changePercent(float percent, Optional<List<ProductEntity>> resultBank) {
+        if (resultBank.isPresent()) {
+            List<ProductEntity> users = resultBank.get();
+            for (ProductEntity productEntity : users) {
+                productEntity.setPercent(percent);
+                repository.save(productEntity);
+            }
         }
-        return productRepo.updatePromotionProduct(percent);
     }
 
     private boolean firstVerifyNumber(String str){
@@ -160,22 +163,6 @@ public class ProductService {
         return false;
     }
 
-    private void entity_dto(List<ProductDTO> listProducts, List<ProductEntity> aux) {
-        for (ProductEntity tmp : aux) {
-            dto = new ProductDTO();
-            dto.setName(tmp.getName());
-            dto.setBrand(tmp.getBrand());
-            dto.setQuantity(tmp.getQuantity());
-            dto.setPromotion(tmp.isPromotion());
-            dto.setPrice(tmp.getPriceDto());
-            dto.setDescription(tmp.getDescription());
-            dto.setPercent(tmp.getPercent());
-            dto.setCategory(tmp.getCategory());
-
-            listProducts.add(dto);
-        }
-    }
-
     private int productRules(ProductDTO product) {
         if(!(product.getName().trim().substring(0,1).equals(product.getName().trim().substring(0,1).toUpperCase())) || product.getName().equals("")){
             return 1;
@@ -201,7 +188,7 @@ public class ProductService {
         return 8;
     }
 
-    private void dto_entity(ProductDTO product, ProductEntity aux) {
+    private void dtoForEntity(ProductDTO product, ProductEntity aux) {
         aux.setName(product.getName());
         aux.setBrand(product.getBrand());
         aux.setQuantity(product.getQuantity());
@@ -229,5 +216,23 @@ public class ProductService {
             return true;
         }
         return false;
+    }
+
+    private ProductEntity verifyIfExists(Long id) throws ProductNotFoundException{
+        return repository.findById(id).orElseThrow(()->new ProductNotFoundException(id));
+    }
+
+    private List<ProductEntity> verifyIfCategoryExists(String category) throws ProductNotFoundException{
+        return repository.findByCategoryContaining(category).orElseThrow(()->new ProductNotFoundException("Category "+ category));
+    }
+
+    private void entityForDto(List<ProductDTO> listProducts, Optional<List<ProductEntity>> resultBank) {
+        if (resultBank.isPresent()) {
+            List<ProductEntity> users = resultBank.get();
+            for (ProductEntity productEntity : users) {
+                ProductDTO dto = new ProductDTO(productEntity.getName(), productEntity.getBrand(), productEntity.getPriceDto(), productEntity.getQuantity(), productEntity.getDescription(), productEntity.isPromotion(), productEntity.getPercent(), productEntity.getCategory());
+                listProducts.add(dto);
+            }
+        }
     }
 }

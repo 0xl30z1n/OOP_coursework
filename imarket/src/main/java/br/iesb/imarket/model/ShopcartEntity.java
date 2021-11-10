@@ -6,7 +6,7 @@ import java.util.List;
 
 public class ShopcartEntity {
 
-    private List<ShopcartItemEntity> items = new ArrayList<>();
+    private List<ShopcartItemEntity> items;
 
     private float total;
 

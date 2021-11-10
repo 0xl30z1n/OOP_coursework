@@ -2,11 +2,11 @@ package br.iesb.imarket.model;
 
 public class ShopcartItemEntity {
 
-    private long id;
+    private Long id;
 
     private int quantity;
 
-    public ShopcartItemEntity(long id, int quantity) {
+    public ShopcartItemEntity(Long id, int quantity) {
         this.id = id;
         this.quantity = quantity;
     }

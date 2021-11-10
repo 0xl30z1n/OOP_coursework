@@ -3,8 +3,7 @@ package br.iesb.imarket.enums;
 public enum CardType {
     DEBIT("Debit"),
     CREDIT("Credit"),
-    PREPAID("Pre-paid"),
-    COBRANDED("Co-branded");
+    PREPAID("Pre-paid");
 
     private final String description;
 
