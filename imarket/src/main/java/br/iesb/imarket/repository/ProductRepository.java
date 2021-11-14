@@ -122,7 +122,7 @@ public class ProductRepository {
     }
     public void saveProduct(Product product){
         if(bankSimulator.size() == 0){
-            product.setId(1);
+            product.setId(1L);
         }else {
             product.setId(bankSimulator.get(bankSimulator.size() - 1).getId() + 1);
         }
