@@ -1,4 +1,4 @@
-package br.iesb.imarket.model;
+package br.iesb.imarket.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,6 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ShopCartItem {
-    private Long id;
-    private int quantity;
+public class CategoryDTO {
+    private String name;
 }

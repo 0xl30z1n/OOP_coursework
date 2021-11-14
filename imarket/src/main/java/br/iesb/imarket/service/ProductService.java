@@ -196,7 +196,7 @@ public class ProductService {
         aux.setPrice(product.getPrice());
         aux.setDescription(product.getDescription());
         aux.setPercent(product.getPercent());
-//        aux.setCategory(product.getCategory().getName());
+        aux.setCategory(product.getCategory());
     }
 
     private boolean verifyPercent(float percent){

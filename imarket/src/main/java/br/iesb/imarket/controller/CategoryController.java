@@ -1,5 +1,6 @@
 package br.iesb.imarket.controller;
 
+import br.iesb.imarket.dto.request.CategoryDTO;
 import br.iesb.imarket.model.Category;
 import br.iesb.imarket.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class CategoryController {
     }
 
     @PostMapping("/categories/add")
-    public String postCategoriesAdd(@ModelAttribute("category") Category category){
+    public String postCategoriesAdd(@ModelAttribute("category") CategoryDTO category){
         categoryService.addCategory(category);
         return "redirect:/admin/categories";
     }

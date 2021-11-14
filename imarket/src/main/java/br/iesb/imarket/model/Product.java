@@ -1,8 +1,18 @@
 package br.iesb.imarket.model;
 
+import br.iesb.imarket.enums.CategoryType;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.util.Date;
 
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "product")
 public class Product {
@@ -38,104 +48,13 @@ public class Product {
     @Column(name = "promotion", nullable = false)
     private boolean promotion;
 
-
-//    @Column(name = "category", nullable = false)
-    @ManyToOne
-    @JoinColumn(name = "category_id", referencedColumnName = "category_id")
-    private Category category;
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(Date create) {
-        this.creationDate = create;
-    }
-
-    public Date getUpdatingDate() {
-        return updatingDate;
-    }
-
-    public void setUpdatingDate(Date update) {
-        this.updatingDate = update;
-    }
-
-    public boolean isPromotion() {
-        return promotion;
-    }
-
-    public void setPromotion(boolean promotion) {
-        this.promotion = promotion;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public float getPercent() {
-        return percent;
-    }
-
-    public void setPercent(float percent) {
-        this.percent = percent;
-    }
-
-    public String getBrand() {
-        return brand;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
+    @Column(name = "category", nullable = false)
+    private CategoryType category;
 
     public float getPriceDto() {
         if(this.promotion == true){
             return price - (price * percent);
         }
         return price;
-    }
-
-    public float getPrice(){
-        return price;
-    }
-
-    public void setPrice(float price) {
-        this.price = price;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 }
