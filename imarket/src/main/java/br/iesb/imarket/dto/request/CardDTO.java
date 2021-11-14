@@ -12,6 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CardDTO {
+    private Long id;
     private CardType type;
     private BannerType banner;
     private String numberCard;

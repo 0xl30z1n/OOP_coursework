@@ -25,7 +25,7 @@ public class ProductService {
 
         while(resultBank.hasNext()){
             Product product = resultBank.next();
-            ProductDTO productDTO = new ProductDTO(product.getName(), product.getBrand(), product.getPriceDto(), product.getQuantity(), product.getDescription(), product.isPromotion(), product.getPercent(), product.getCategory());
+            ProductDTO productDTO = new ProductDTO(product.getId(), product.getName(), product.getBrand(), product.getPriceDto(), product.getQuantity(), product.getDescription(), product.isPromotion(), product.getPercent(), product.getCategory());
             listProducts.add(productDTO);
         }
         return listProducts;
@@ -189,6 +189,7 @@ public class ProductService {
     }
 
     private void dtoForEntity(ProductDTO product, Product aux) {
+        aux.setId(product.getId());
         aux.setName(product.getName());
         aux.setBrand(product.getBrand());
         aux.setQuantity(product.getQuantity());
@@ -230,7 +231,7 @@ public class ProductService {
         if (resultBank.isPresent()) {
             List<Product> users = resultBank.get();
             for (Product product : users) {
-                ProductDTO dto = new ProductDTO(product.getName(), product.getBrand(), product.getPriceDto(), product.getQuantity(), product.getDescription(), product.isPromotion(), product.getPercent(), product.getCategory());
+                ProductDTO dto = new ProductDTO(product.getId(), product.getName(), product.getBrand(), product.getPriceDto(), product.getQuantity(), product.getDescription(), product.isPromotion(), product.getPercent(), product.getCategory());
                 listProducts.add(dto);
             }
         }

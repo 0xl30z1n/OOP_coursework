@@ -36,6 +36,7 @@ public class CategoryService {
     }
 
     private void dtoForEntity(CategoryDTO category, Category aux) {
+        aux.setId(category.getId());
         aux.setName(category.getName());
     }
 }

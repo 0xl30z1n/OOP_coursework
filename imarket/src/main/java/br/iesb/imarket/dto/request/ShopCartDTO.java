@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ShopCartDTO {
+    private Long id;
     private List<ShopCartItem> items = new ArrayList<>();
     private float total;
     private Date lastModification;

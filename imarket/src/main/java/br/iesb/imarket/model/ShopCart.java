@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ShopCart {
+    private Long id;
     private List<ShopCartItem> items;
     private float total;
     private Date lastModification;
