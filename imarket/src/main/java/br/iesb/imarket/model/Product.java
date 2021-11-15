@@ -1,6 +1,5 @@
 package br.iesb.imarket.model;
 
-import br.iesb.imarket.enums.CategoryType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,7 +48,7 @@ public class Product {
     private boolean promotion;
 
     @Column(name = "category", nullable = false)
-    private CategoryType category;
+    private String category;
 
     public float getPriceDto() {
         if(this.promotion == true){

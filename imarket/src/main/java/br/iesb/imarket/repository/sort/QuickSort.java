@@ -22,7 +22,7 @@ public class QuickSort extends SortProducts{
         quickSort(this.list,this.i,this.f);
     }
 
-    private void quickSort(List<Product> list,int inicio,int fim){
+    private void quickSort(List<Product> list, int inicio, int fim){
         if (inicio < fim) {
             int posicaoPivo = separar(list, inicio, fim);
             quickSort(list, inicio, posicaoPivo - 1);

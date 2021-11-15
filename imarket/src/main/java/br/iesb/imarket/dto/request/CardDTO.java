@@ -7,15 +7,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class CardDTO {
-    private Long id;
+
     private CardType type;
     private BannerType banner;
-    private String numberCard;
-    private int cvv;
-    private long limit;
+    private String cardNumber;
+    private String name;
+    private String cvv;
+    private double limit;
 }

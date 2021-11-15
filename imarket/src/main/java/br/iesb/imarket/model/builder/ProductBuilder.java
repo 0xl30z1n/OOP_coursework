@@ -1,7 +1,8 @@
 package br.iesb.imarket.model.builder;
 
-import br.iesb.imarket.enums.CategoryType;
 import br.iesb.imarket.model.Product;
+
+import java.util.Date;
 
 public class ProductBuilder {
     private final Product product;
@@ -44,13 +45,23 @@ public class ProductBuilder {
         return this;
     }
 
-    public ProductBuilder withCategory(CategoryType category){
+    public ProductBuilder withCategory(String category){
         product.setCategory(category);
         return this;
     }
 
     public ProductBuilder withQuantity(int quantity){
         product.setQuantity(quantity);
+        return this;
+    }
+
+    public ProductBuilder withCreation(Date data){
+        product.setCreationDate(data);
+        return this;
+    }
+
+    public ProductBuilder withUpdated(Date data){
+        product.setUpdatingDate(data);
         return this;
     }
 

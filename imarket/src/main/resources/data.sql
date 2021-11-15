@@ -29,3 +29,29 @@ create table user_login(
     token varchar(255) not null,
     acess boolean not null
 );
+
+drop table if exists card;
+create table card(
+    id long primary key,
+    banner varchar(255) not null,
+    type varchar(255) not null,
+    card_number varchar(255) not null,
+    name varchar(255) not null,
+    limite double not null,
+    cvv varchar(255) not null
+);
+
+drop table if exists shop_cart_item;
+create table shop_cart_item(
+    id int auto_increment primary key,
+    quantity int not null,
+    price float not null
+);
+
+drop table if exists shop_cart;
+create table shop_cart(
+    id long primary key,
+    total float not null,
+    last_modification Datetime not null
+);
+

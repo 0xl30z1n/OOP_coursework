@@ -66,9 +66,6 @@ public class AuthController {
     public ResponseEntity<String> login(@RequestBody UserDTO user){
         String token = service.login(user);
 
-        if(token == null){
-            return ResponseEntity.notFound().build();
-        }
         HttpHeaders responseHeader = new HttpHeaders();
         responseHeader.add("Autortization",token);
 

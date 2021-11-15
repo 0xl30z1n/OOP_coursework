@@ -25,8 +25,6 @@ public class ProductController {
 
     private MessageSingletron msg = MessageSingletron.getMessageSingletron();
 
-    private MessageResponseDTO message = new MessageResponseDTO();
-
     @GetMapping("/products")
     public ResponseEntity<List<ProductDTO>> getProducts() throws ProductNotFoundException{
         List<ProductDTO> listProductsDtos = serviceProd.getProduct();
