@@ -1,5 +1,7 @@
 package br.iesb.imarket.validators;
 
+import br.iesb.imarket.exception.ValidationException;
+
 import java.util.regex.Pattern;
 
 public abstract class Validate {
@@ -9,5 +11,5 @@ public abstract class Validate {
                 .matches();
     }
 
-    protected abstract void validate(String parameters);
+    public abstract void validate(String parameters) throws ValidationException;
 }

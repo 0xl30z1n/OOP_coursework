@@ -2,12 +2,20 @@ package br.iesb.imarket.service;
 
 import br.iesb.imarket.dto.request.UserDTO;
 import br.iesb.imarket.dto.request.UserLoginDTO;
+import br.iesb.imarket.dto.request.builder.UserDTOBuilder;
+import br.iesb.imarket.dto.request.builder.UserLoginDTOBuilder;
 import br.iesb.imarket.exception.UserBadRequestException;
 import br.iesb.imarket.exception.UserNotFoundException;
+import br.iesb.imarket.exception.ValidationException;
 import br.iesb.imarket.model.User;
 import br.iesb.imarket.model.UserLogin;
+import br.iesb.imarket.model.builder.UserBuilder;
+import br.iesb.imarket.model.builder.UserLoginBuilder;
 import br.iesb.imarket.repository.UserLoginRepo;
 import br.iesb.imarket.repository.UserRepo;
+import br.iesb.imarket.validators.EmailValidator;
+import br.iesb.imarket.validators.PasswordValidator;
+import br.iesb.imarket.validators.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -56,37 +64,30 @@ public class AuthService {
         String password = user.getPassword();
 
         Optional<User> resultBank = repositoyUser.findByEmailAndPasswordContaining(email,password);
-        User userLog = resultBank.get();
-        if(userLog != null){
-            UserLogin loginSave = new UserLogin();
-            loginSave.setId(userLog.getId());
-            loginSave.setName(userLog.getName());
-            loginSave.setToken(userLog.getToken());
-            loginSave.setAcess(userLog.isAcess());
-            repositoryLogin.save(loginSave);
-            return userLog.getToken();
-        }
-        return null;
+        User userResult = resultBank.get();
+
+        UserLoginBuilder builder = UserLoginBuilder.builder();
+        UserLogin entity = builder.idInUser(userResult.getId()).nameInUser(userResult.getName())
+                .tokenInUser(userResult.getToken()).withAcesso(userResult.isAcess()).build();
+
+        repositoryLogin.save(entity);
+        return userResult.getToken();
     }
 
-    public int signup(UserDTO user) throws UserBadRequestException{
-        verifyIfEmailAndPasswordExists(user.getEmail(), user.getPassword());
-        if(user.getName().trim().equals("") || user.getName().trim().split(" ").length < 2 || verifyFirstCaracName(user.getName().trim().split(" ")) || verifyNumber(user.getName().trim()) || verifySpecial(user.getName().trim())){
-            return 1;
-        }
-        if(!(user.getEmail().contains("@")) || !(user.getEmail().trim().substring(user.getEmail().trim().length()-4,user.getEmail().trim().length()).equals(".com") || user.getEmail().trim().substring(user.getEmail().trim().length()-3,user.getEmail().trim().length()).equals(".br")) || user.getEmail().trim().substring(user.getEmail().indexOf("@") + 1,user.getEmail().indexOf("@")+2).equals(".")){
-            return 2;
-        }
+    public int signup(UserDTO user) throws UserBadRequestException, ValidationException {
+        Validate eValidator = new EmailValidator();
+        Validate pValidator = new PasswordValidator();
+
+        eValidator.validate(user.getEmail());
+        pValidator.validate(user.getPassword());
+        verifyIfEmailOrPasswordExists(user.getEmail(), user.getPassword());
         if(user.getPassword().length() < 6 || firstVerifyNumber(user.getPassword().trim()) || firstVerifySpecial(user.getPassword().trim()) || !(user.getPassword().trim().substring(0,1).equals(user.getPassword().trim().substring(0,1).toUpperCase())) || !verifyNumber(user.getPassword().trim()) || !verifySpecial(user.getPassword().trim())){
             return 3;
         }
-        User entity = new User();
-        entity.setName(user.getName());
-        entity.setEmail(user.getEmail());
-        entity.setPassword(user.getPassword());
-        entity.setAcess(user.isAcess());
         String token = UUID.randomUUID().toString();
-        entity.setToken(token);
+        UserBuilder builder = UserBuilder.builder();
+        User entity = builder.nameInUser(user.getName()).emailInUser(user.getEmail())
+                .passwordInUser(user.getPassword()).withAcesso(user.isAcess()).tokenInUser(token).build();
         repositoyUser.save(entity);
         return 0;
     }
@@ -121,7 +122,7 @@ public class AuthService {
         return getUserLoginDTO(resultBank);
     }
 
-    private void verifyIfEmailAndPasswordExists(String email, String password) throws UserBadRequestException {
+    private void verifyIfEmailOrPasswordExists(String email, String password) throws UserBadRequestException {
         Optional<List<User>> aux = repositoyUser.findByEmailOrPasswordContaining(email,password);
         List<User> result = aux.get();
         if(!result.isEmpty()){
@@ -130,19 +131,16 @@ public class AuthService {
     }
 
     private UserDTO getUserDTO(User u) {
-        UserDTO dto = new UserDTO();
-        dto.setName(u.getName());
-        dto.setEmail(u.getEmail());
-        dto.setPassword(u.getPassword());
-        dto.setAcess(u.isAcess());
+        UserDTOBuilder builder = UserDTOBuilder.builder();
+        UserDTO dto = builder.nameInUser(u.getName()).emailInUser(u.getEmail())
+                .passwordInUser(u.getPassword()).withAcesso(u.isAcess()).build();
         return dto;
     }
 
     private UserLoginDTO getUserLoginDTO(UserLogin u) {
-        UserLoginDTO dto = new UserLoginDTO();
-        dto.setName(u.getName());
-        dto.setToken(u.getToken());
-        dto.setAcess(u.isAcess());
+        UserLoginDTOBuilder builder = UserLoginDTOBuilder.builder();
+        UserLoginDTO dto = builder.nameInUser(u.getName()).withToken(u.getToken())
+                .withAcesso(u.isAcess()).build();
         return dto;
     }
 

@@ -1,7 +1,11 @@
 package br.iesb.imarket.model.builder;
 
 import br.iesb.imarket.enums.BannerType;
+import br.iesb.imarket.enums.CardType;
 import br.iesb.imarket.model.Card;
+
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 
 public class CardBuilder {
     private final Card card;
@@ -14,6 +18,11 @@ public class CardBuilder {
         return new CardBuilder();
     }
 
+    public CardBuilder idInCard(Long id){
+        card.setId(id);
+        return this;
+    }
+
     public CardBuilder nameInCard(String name){
         card.setName(name);
         return this;
@@ -24,23 +33,23 @@ public class CardBuilder {
         return this;
     }
 
+    public CardBuilder withType(CardType type){
+        card.setType(type);
+        return this;
+    }
+
     public CardBuilder withCardNumber(String cardNumber){
         card.setCardNumber(cardNumber);
         return this;
     }
 
-    public CardBuilder withCvv(int cvv){
+    public CardBuilder withCvv(String cvv){
         card.setCvv(cvv);
         return this;
     }
 
     public CardBuilder withLimit(double limit){
         card.setLimit(limit);
-        return this;
-    }
-
-    public CardBuilder withExpiryDate(String date){
-        card.setDateOfExpiry(date);
         return this;
     }
 

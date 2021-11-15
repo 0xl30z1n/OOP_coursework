@@ -1,7 +1,6 @@
 package br.iesb.imarket.dto.request;
 
-import br.iesb.imarket.enums.CategoryType;
-import br.iesb.imarket.model.Category;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ShopCartItemDTO {
-    private Long id;
+    private int id;
     private int quantity;
+    private float price;
 }

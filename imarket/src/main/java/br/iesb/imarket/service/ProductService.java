@@ -1,10 +1,11 @@
 package br.iesb.imarket.service;
 
 import br.iesb.imarket.dto.request.ProductDTO;
-import br.iesb.imarket.enums.CategoryType;
+import br.iesb.imarket.dto.request.builder.ProductDTOBuilder;
 import br.iesb.imarket.exception.ProductBadRequestException;
 import br.iesb.imarket.exception.ProductNotFoundException;
 import br.iesb.imarket.model.Product;
+import br.iesb.imarket.model.builder.ProductBuilder;
 import br.iesb.imarket.repository.ProdRepo;
 import br.iesb.imarket.repository.sort.QuickSort;
 import br.iesb.imarket.repository.sort.SortProducts;
@@ -57,8 +58,7 @@ public class ProductService {
     public int saveProduct(ProductDTO product) throws ProductBadRequestException{
         verifyIfNameExists(product.getName());
         productRules(product);
-        Product aux = new Product();
-        dtoForEntity(product, aux);
+        Product aux = dtoForEntity(product);
         Date data = new Date();
         aux.setCreationDate(data);
         repository.save(aux);
@@ -90,17 +90,18 @@ public class ProductService {
     public void updateProduct(long id, ProductDTO product) throws ProductNotFoundException, ProductBadRequestException{
         verifyIfExists(id);
         productRules(product);
-        Product aux = new Product();
+        Product aux = dtoForEntity(product);
         aux.setId(id);
-        dtoForEntity(product, aux);
+        Date dataUp = new Date();
+        aux.setUpdatingDate(dataUp);
         repository.save(aux);
     }
 
     public void updatePromotionCategory(String category, float percent) throws ProductNotFoundException, ProductBadRequestException{
         verifyCategory(category);
         verifyPercent(percent);
-        //Optional<List<Product>> resultBank = repository.findByCategoryContaining(category);
-        //changePercent(percent,resultBank.get(),"Selected category null");
+        Optional<List<Product>> resultBank = repository.findByCategoryContains(category);
+        changePercent(percent,resultBank.get(),"Selected category null");
     }
 
     public void updatePromotionBrand(String brand, float percent) throws ProductNotFoundException, ProductBadRequestException{
@@ -115,21 +116,20 @@ public class ProductService {
 
     private void entityForDto(List<ProductDTO> listProducts, List<Product> resultBank) {
         for (Product product : resultBank) {
-            ProductDTO dto = new ProductDTO(product.getName(),product.getBrand(),product.getPriceDto(),product.getQuantity(),product.getDescription(),product.isPromotion(),product.getPercent(),product.getCategory().getDescription());
+            ProductDTOBuilder builder = ProductDTOBuilder.builder();
+            ProductDTO dto = builder.withName(product.getName()).withBrand(product.getBrand()).withPrice(product.getPriceDto())
+                    .withQuantity(product.getQuantity()).descriptionInProduct(product.getDescription()).withPromotion(product.isPromotion())
+                    .withPercent(product.getPercent()).withCategory(product.getCategory()).build();
             listProducts.add(dto);
         }
     }
 
-    private void dtoForEntity(ProductDTO product, Product aux) {
-        aux.setName(product.getName());
-        aux.setBrand(product.getBrand());
-        aux.setQuantity(product.getQuantity());
-        aux.setPromotion(product.isPromotion());
-        aux.setPrice(product.getPrice());
-        aux.setDescription(product.getDescription());
-        aux.setPercent(product.getPercent());
-        CategoryType category = CategoryType.valueOf(product.getCategory());
-        aux.setCategory(category);
+    private Product dtoForEntity(ProductDTO product) {
+        ProductBuilder builder = ProductBuilder.builder();
+        Product aux = builder.nameInProduct(product.getName()).brandInProduct(product.getBrand()).withQuantity(product.getQuantity())
+                .withPromotion(product.isPromotion()).withPrice(product.getPrice()).descriptionInProduct(product.getDescription())
+                .withPercent(product.getPercent()).withCategory(product.getCategory()).build();
+        return aux;
     }
 
     private void verifyPercent(float percent) throws ProductBadRequestException{
@@ -143,13 +143,8 @@ public class ProductService {
     }
 
     private void verifyCategory(String category) throws ProductBadRequestException{
-        CategoryType[] values = CategoryType.values();
-        for (CategoryType c: values){
-            if(c.name().equals(category)){
-                return;
-            }
-        }
-        throw new ProductBadRequestException("Invalid product category");
+        if(!(category.trim().substring(0,1).equals(category.trim().substring(0,1).toUpperCase())) || category.equals(""))
+            throw new ProductBadRequestException("Invalid product category");
     }
 
     private Product verifyIfExists(Long id) throws ProductNotFoundException {
@@ -167,7 +162,7 @@ public class ProductService {
     }
 
     private List<Product> verifyIfCategoryExists(String category) throws ProductNotFoundException{
-        Optional<List<Product>> resultBank = repository.findByCategoryContains(category.trim().toUpperCase());
+        Optional<List<Product>> resultBank = repository.findByCategoryContains(category.trim());
         List<Product> list = resultBank.get();
         if(list.isEmpty()){
             throw new ProductNotFoundException("Resource not found with Category " + category);
@@ -176,7 +171,7 @@ public class ProductService {
     }
 
     private List<Product> verifyIfBrandExists(String brand) throws ProductNotFoundException{
-        Optional<List<Product>> resultBank = repository.findByBrandContaining(brand);
+        Optional<List<Product>> resultBank = repository.findByBrandContaining(brand.trim());
         List<Product> list = resultBank.get();
         if(list.isEmpty()){
             throw new ProductNotFoundException("Resource not found with Brand " + brand);
@@ -193,7 +188,7 @@ public class ProductService {
         return list;
     }
 
-    private void productRules(ProductDTO product) throws ProductBadRequestException{
+    private void productRules(br.iesb.imarket.dto.request.ProductDTO product) throws ProductBadRequestException{
         if(!(product.getName().trim().substring(0,1).equals(product.getName().trim().substring(0,1).toUpperCase())) || product.getName().equals("")){
             throw new ProductBadRequestException("Invalid product name");
         }
@@ -230,10 +225,12 @@ public class ProductService {
         return false;
     }
 
-    private void changePercent(float percent, List<Product> resultBank,String str) throws ProductNotFoundException{
+    private void changePercent(float percent, List<Product> resultBank, String str) throws ProductNotFoundException{
         if (!resultBank.isEmpty()) {
             for (Product product : resultBank) {
                 product.setPercent(percent);
+                Date dataUp = new Date();
+                product.setUpdatingDate(dataUp);
                 repository.save(product);
             }
         }else {
