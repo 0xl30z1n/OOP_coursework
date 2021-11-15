@@ -1,1 +1,0 @@
-# OOP Coursework - Tema: iMarket 
