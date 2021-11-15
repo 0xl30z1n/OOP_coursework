@@ -6,6 +6,7 @@ import br.iesb.imarket.dto.response.MessageResponseDTO;
 import br.iesb.imarket.dto.response.MessageSingletron;
 import br.iesb.imarket.exception.UserBadRequestException;
 import br.iesb.imarket.exception.UserNotFoundException;
+import br.iesb.imarket.exception.ValidationException;
 import br.iesb.imarket.service.AuthService;
 import br.iesb.imarket.validators.EmailValidator;
 import br.iesb.imarket.validators.Validate;
@@ -45,7 +46,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<MessageResponseDTO> signup(@RequestBody UserDTO user) throws UserBadRequestException{
+    public ResponseEntity<MessageResponseDTO> signup(@RequestBody UserDTO user) throws UserBadRequestException, ValidationException {
         Validate emailValidator = new EmailValidator();
 
         int result = service.signup(user);

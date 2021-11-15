@@ -6,12 +6,16 @@ import br.iesb.imarket.dto.request.builder.UserDTOBuilder;
 import br.iesb.imarket.dto.request.builder.UserLoginDTOBuilder;
 import br.iesb.imarket.exception.UserBadRequestException;
 import br.iesb.imarket.exception.UserNotFoundException;
+import br.iesb.imarket.exception.ValidationException;
 import br.iesb.imarket.model.User;
 import br.iesb.imarket.model.UserLogin;
 import br.iesb.imarket.model.builder.UserBuilder;
 import br.iesb.imarket.model.builder.UserLoginBuilder;
 import br.iesb.imarket.repository.UserLoginRepo;
 import br.iesb.imarket.repository.UserRepo;
+import br.iesb.imarket.validators.EmailValidator;
+import br.iesb.imarket.validators.PasswordValidator;
+import br.iesb.imarket.validators.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,14 +74,13 @@ public class AuthService {
         return userResult.getToken();
     }
 
-    public int signup(UserDTO user) throws UserBadRequestException{
+    public int signup(UserDTO user) throws UserBadRequestException, ValidationException {
+        Validate eValidator = new EmailValidator();
+        Validate pValidator = new PasswordValidator();
+
+        eValidator.validate(user.getEmail());
+        pValidator.validate(user.getPassword());
         verifyIfEmailOrPasswordExists(user.getEmail(), user.getPassword());
-        if(user.getName().trim().equals("") || user.getName().trim().split(" ").length < 2 || verifyFirstCaracName(user.getName().trim().split(" ")) || verifyNumber(user.getName().trim()) || verifySpecial(user.getName().trim())){
-            return 1;
-        }
-        if(!(user.getEmail().contains("@")) || !(user.getEmail().trim().substring(user.getEmail().trim().length()-4,user.getEmail().trim().length()).equals(".com") || user.getEmail().trim().substring(user.getEmail().trim().length()-3,user.getEmail().trim().length()).equals(".br")) || user.getEmail().trim().substring(user.getEmail().indexOf("@") + 1,user.getEmail().indexOf("@")+2).equals(".")){
-            return 2;
-        }
         if(user.getPassword().length() < 6 || firstVerifyNumber(user.getPassword().trim()) || firstVerifySpecial(user.getPassword().trim()) || !(user.getPassword().trim().substring(0,1).equals(user.getPassword().trim().substring(0,1).toUpperCase())) || !verifyNumber(user.getPassword().trim()) || !verifySpecial(user.getPassword().trim())){
             return 3;
         }

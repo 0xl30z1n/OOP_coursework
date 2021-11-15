@@ -67,6 +67,17 @@ public class ResourceExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
     }
 
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<StandardError> validation(ValidationException e, HttpServletRequest request){
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        err.setStatus(HttpStatus.BAD_REQUEST.value());
+        err.setError("Bad request");
+        err.setMessage(e.getMessage());
+        err.setPath(request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+    }
+
     @ExceptionHandler(CardNotFoundException.class)
     public ResponseEntity<StandardError> CardNotFound(CardNotFoundException e, HttpServletRequest request){
         StandardError err = new StandardError();
