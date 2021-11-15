@@ -1,7 +1,13 @@
 package br.iesb.imarket.enums;
 
 public enum CategoryType {
-    ELETRONICS("Eletronics");
+    ELETRONICS("Eletronics"),
+    HYGIENE("Hygiene"),
+    CLEANING("Cleaning"),
+    GROCERS("Grocer's"),
+    PERISHABLE("Perishable"),
+    MEAT("Perishable/Meat"),
+    HORTIFRUTI("Perishable/hortifruti");
 
     private final String description;
 

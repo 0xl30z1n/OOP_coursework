@@ -1,5 +1,8 @@
 package br.iesb.imarket.model.builder;
 
+import br.iesb.imarket.enums.CategoryType;
+import br.iesb.imarket.model.Product;
+
 public class ProductBuilder {
     private final Product product;
 
@@ -14,30 +17,30 @@ public class ProductBuilder {
     public ProductBuilder nameInProduct(String name){
         product.setName(name);
         return this;
-    }SS
+    }
 
     public ProductBuilder brandInProduct(String brand){
-        product.setbrand(brand);
+        product.setBrand(brand);
         return this;
     }
 
     public ProductBuilder withPrice(float price){
-        product.setprice(price);
+        product.setPrice(price);
         return this;
     }
 
     public ProductBuilder descriptionInProduct(String description){
-        product.setdescription(description);
+        product.setDescription(description);
         return this;
     }
 
     public ProductBuilder withPromotion(boolean promotion){
-        product.setpromotion(price);
+        product.setPromotion(promotion);
         return this;
     }
 
     public ProductBuilder withPercent(float percent){
-        product.setpercent(percent);
+        product.setPercent(percent);
         return this;
     }
 
@@ -47,7 +50,7 @@ public class ProductBuilder {
     }
 
     public ProductBuilder withQuantity(int quantity){
-        product.setquantity(quantity);
+        product.setQuantity(quantity);
         return this;
     }
 
