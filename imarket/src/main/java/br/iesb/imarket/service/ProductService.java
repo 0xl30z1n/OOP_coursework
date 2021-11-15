@@ -1,10 +1,13 @@
 package br.iesb.imarket.service;
 
 import br.iesb.imarket.dto.request.ProductDTO;
+import br.iesb.imarket.enums.CategoryType;
+import br.iesb.imarket.exception.ProductBadRequestException;
 import br.iesb.imarket.exception.ProductNotFoundException;
 import br.iesb.imarket.model.Product;
 import br.iesb.imarket.repository.ProdRepo;
-import br.iesb.imarket.repository.ProductRepository;
+import br.iesb.imarket.repository.sort.QuickSort;
+import br.iesb.imarket.repository.sort.SortProducts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,61 +19,48 @@ public class ProductService {
     @Autowired
     private ProdRepo repository;
 
-    @Autowired
-    private ProductRepository productRepo;
-
-    public List<ProductDTO> getProduct(){
+    public List<ProductDTO> getProduct() throws ProductNotFoundException{
         List<ProductDTO> listProducts = new ArrayList<>();
-        Iterator<Product> resultBank = repository.findAll().iterator();
-
-        while(resultBank.hasNext()){
-            Product product = resultBank.next();
-            ProductDTO productDTO = new ProductDTO(product.getId(), product.getName(), product.getBrand(), product.getPriceDto(), product.getQuantity(), product.getDescription(), product.isPromotion(), product.getPercent(), product.getCategory());
-            listProducts.add(productDTO);
-        }
+        entityForDto(listProducts, verifyIsBankEmpty());
         return listProducts;
     }
 
-    public List<ProductDTO> getProductCategory(String category){
+    public List<ProductDTO> getProductCategory(String category) throws ProductNotFoundException, ProductBadRequestException {
+        verifyCategory(category);
         List<ProductDTO> listProducts = new ArrayList<>();
-        Optional<List<Product>> resultBank = repository.findByCategoryContaining(category);
-        entityForDto(listProducts,resultBank);
-
+        entityForDto(listProducts, verifyIfCategoryExists(category));
         return listProducts;
     }
 
-    public List<ProductDTO> getProductBrand(String brand){
+    public List<ProductDTO> getProductBrand(String brand) throws ProductNotFoundException, ProductBadRequestException{
+        verifyBrand(brand);
         List<ProductDTO> listProducts = new ArrayList<>();
-        Optional<List<Product>> resultBank = repository.findByBrandContaining(brand);
-        entityForDto(listProducts, resultBank);
-
+        entityForDto(listProducts, verifyIfBrandExists(brand));
         return listProducts;
     }
 
-    public List<ProductDTO> getProductsPromotion(){
+    public List<ProductDTO> getProductsPromotion() throws ProductNotFoundException{
         List<ProductDTO> listProducts = new ArrayList<>();
-        Optional<List<Product>> resultBank = repository.getByPromotionIsTrue();
-        entityForDto(listProducts, resultBank);
-
+        entityForDto(listProducts, verifyIfPromotionExists());
         return listProducts;
     }
 
-    public List<ProductDTO> getProductsCrescente(){
+    public List<ProductDTO> getProductsCrescente() throws ProductNotFoundException{
         List<ProductDTO> listProducts = new ArrayList<>();
-
-        List<Product> aux = productRepo.getProductsCrescente();
-        //entity_dto(listProducts, aux);
+        List<Product> aux = verifyIsBankEmpty();
+        SortProducts sort = new QuickSort(aux,0,aux.size()-1);
+        sort.sort();
+        entityForDto(listProducts,aux);
         return listProducts;
     }
 
-    public int saveProduct(ProductDTO product){
+    public int saveProduct(ProductDTO product) throws ProductBadRequestException{
+        verifyIfNameExists(product.getName());
+        productRules(product);
         Product aux = new Product();
-
         dtoForEntity(product, aux);
         Date data = new Date();
         aux.setCreationDate(data);
-
-        productRepo.saveProduct(aux);
         repository.save(aux);
         return 0;
     }
@@ -79,62 +69,151 @@ public class ProductService {
         verifyIfExists(id);
         repository.deleteById(id);
     }
-    public void serviceDelCategory(String category) throws ProductNotFoundException{
-        verifyIfCategoryExists(category);
-        Optional<List<Product>> resultBank = repository.findByCategoryContaining(category);
-        if (resultBank.isPresent()) {
-            List<Product> users = resultBank.get();
-            for (Product product : users) {
-                repository.deleteById(product.getId());
-            }
+    public void serviceDelCategory(String category) throws ProductNotFoundException, ProductBadRequestException{
+        verifyCategory(category);
+        for (Product product : verifyIfCategoryExists(category)) {
+            repository.deleteById(product.getId());
         }
-    }
-    public void serviceDelBrand(String brand){
 
-        Optional<List<Product>> resultBank = repository.findByBrandContaining(brand);
-        if (resultBank.isPresent()) {
-            List<Product> users = resultBank.get();
-            for (Product product : users) {
-                repository.deleteById(product.getId());
-            }
+    }
+    public void serviceDelBrand(String brand) throws ProductNotFoundException, ProductBadRequestException{
+        verifyBrand(brand);
+        for (Product product : verifyIfBrandExists(brand)) {
+            repository.deleteById(product.getId());
         }
     }
-    public void serviceDelAll(){
+    public void serviceDelAll()throws ProductNotFoundException{
+        verifyIsBankEmpty();
         repository.deleteAll();
     }
 
-    public void updateProduct(long id, ProductDTO product) throws ProductNotFoundException{
-        Product aux = new Product();
-
+    public void updateProduct(long id, ProductDTO product) throws ProductNotFoundException, ProductBadRequestException{
         verifyIfExists(id);
+        productRules(product);
+        Product aux = new Product();
         aux.setId(id);
         dtoForEntity(product, aux);
         repository.save(aux);
     }
 
-    public void updatePromotionCategory(String category, float percent){
-        Optional<List<Product>> resultBank = repository.findByCategoryContaining(category);
-        changePercent(percent,resultBank);
+    public void updatePromotionCategory(String category, float percent) throws ProductNotFoundException, ProductBadRequestException{
+        verifyCategory(category);
+        verifyPercent(percent);
+        //Optional<List<Product>> resultBank = repository.findByCategoryContaining(category);
+        //changePercent(percent,resultBank.get(),"Selected category null");
     }
 
-    public void updatePromotionBrand(String brand, float percent){
+    public void updatePromotionBrand(String brand, float percent) throws ProductNotFoundException, ProductBadRequestException{
         Optional<List<Product>> resultBank = repository.findByBrandContaining(brand);
-        changePercent(percent,resultBank);
+        changePercent(percent,resultBank.get(), "Selected brand null");
     }
 
-    public void updatePromotionAll(float percent){
+    public void updatePromotionAll(float percent) throws ProductNotFoundException, ProductBadRequestException{
         Optional<List<Product>> resultBank = repository.getByPromotionIsTrue();
-        changePercent(percent, resultBank);
+        changePercent(percent, resultBank.get(), "Bank is empty");
     }
 
+    private void entityForDto(List<ProductDTO> listProducts, List<Product> resultBank) {
+        for (Product product : resultBank) {
+            ProductDTO dto = new ProductDTO(product.getName(),product.getBrand(),product.getPriceDto(),product.getQuantity(),product.getDescription(),product.isPromotion(),product.getPercent(),product.getCategory().getDescription());
+            listProducts.add(dto);
+        }
+    }
 
-    private void changePercent(float percent, Optional<List<Product>> resultBank) {
-        if (resultBank.isPresent()) {
-            List<Product> users = resultBank.get();
-            for (Product product : users) {
-                product.setPercent(percent);
-                repository.save(product);
+    private void dtoForEntity(ProductDTO product, Product aux) {
+        aux.setName(product.getName());
+        aux.setBrand(product.getBrand());
+        aux.setQuantity(product.getQuantity());
+        aux.setPromotion(product.isPromotion());
+        aux.setPrice(product.getPrice());
+        aux.setDescription(product.getDescription());
+        aux.setPercent(product.getPercent());
+        CategoryType category = CategoryType.valueOf(product.getCategory());
+        aux.setCategory(category);
+    }
+
+    private void verifyPercent(float percent) throws ProductBadRequestException{
+        if(percent < 0.0)
+            throw new ProductBadRequestException("Invalid product percent");
+    }
+
+    private void verifyBrand(String brand) throws ProductBadRequestException{
+        if(!(brand.trim().substring(0,1).equals(brand.trim().substring(0,1).toUpperCase())) || brand.equals(""))
+            throw new ProductBadRequestException("Invalid product brand");
+    }
+
+    private void verifyCategory(String category) throws ProductBadRequestException{
+        CategoryType[] values = CategoryType.values();
+        for (CategoryType c: values){
+            if(c.name().equals(category)){
+                return;
             }
+        }
+        throw new ProductBadRequestException("Invalid product category");
+    }
+
+    private Product verifyIfExists(Long id) throws ProductNotFoundException {
+        return repository.findById(id).orElseThrow(()->new ProductNotFoundException(id));
+    }
+
+    private List<Product> verifyIsBankEmpty() throws ProductNotFoundException{
+        Iterator<Product> resultBank = repository.findAll().iterator();
+        List<Product> listProducts = new ArrayList<>();
+        resultBank.forEachRemaining(listProducts::add);
+        if(listProducts.isEmpty()){
+            throw new ProductNotFoundException("Bank is empty");
+        }
+        return listProducts;
+    }
+
+    private List<Product> verifyIfCategoryExists(String category) throws ProductNotFoundException{
+        Optional<List<Product>> resultBank = repository.findByCategoryContains(category.trim().toUpperCase());
+        List<Product> list = resultBank.get();
+        if(list.isEmpty()){
+            throw new ProductNotFoundException("Resource not found with Category " + category);
+        }
+        return list;
+    }
+
+    private List<Product> verifyIfBrandExists(String brand) throws ProductNotFoundException{
+        Optional<List<Product>> resultBank = repository.findByBrandContaining(brand);
+        List<Product> list = resultBank.get();
+        if(list.isEmpty()){
+            throw new ProductNotFoundException("Resource not found with Brand " + brand);
+        }
+        return list;
+    }
+
+    private List<Product> verifyIfPromotionExists() throws ProductNotFoundException{
+        Optional<List<Product>> resultBank = repository.getByPromotionIsTrue();
+        List<Product> list = resultBank.get();
+        if(list.isEmpty()){
+            throw new ProductNotFoundException("Resource not found Promotion");
+        }
+        return list;
+    }
+
+    private void productRules(ProductDTO product) throws ProductBadRequestException{
+        if(!(product.getName().trim().substring(0,1).equals(product.getName().trim().substring(0,1).toUpperCase())) || product.getName().equals("")){
+            throw new ProductBadRequestException("Invalid product name");
+        }
+        if(!(product.getBrand().trim().substring(0,1).equals(product.getBrand().trim().substring(0,1).toUpperCase())) || product.getBrand().equals("")){
+            throw new ProductBadRequestException("Invalid product brand");
+        }
+        if(product.getQuantity() <= 0){
+            throw new ProductBadRequestException("Invalid product quantity");
+        }
+        if(product.getPrice() <= 0.0){
+            throw new ProductBadRequestException("Invalid product price");
+        }
+
+        verifyCategory(product.getCategory());
+
+        if(product.getPercent() < 0.0){
+            throw new ProductBadRequestException("Invalid product percent");
+        }
+        if(product.getDescription().trim().split(" ").length < 2 || firstVerifyNumber(product.getDescription().trim()) || firstVerifySpecial(product.getDescription().trim()) || !product.getDescription().trim().substring(0,1).equals(product.getDescription().trim().substring(0,1).toUpperCase())){
+            throw new ProductBadRequestException("Invalid product description");
         }
     }
 
@@ -150,90 +229,22 @@ public class ProductService {
         }
         return false;
     }
-    private boolean verifySpecial(String str){
-        if(str.contains(".") || str.contains("_") || str.contains("$") || str.contains("@") || str.contains("#") || str.contains("%") || str.contains("*") || str.contains("&")){
-            return true;
-        }
-        return false;
-    }
-    private boolean verifyNumber(String str){
-        if(str.contains("0") || str.contains("1") || str.contains("2") || str.contains("3") || str.contains("4") || str.contains("5") || str.contains("6") || str.contains("7") || str.contains("8") || str.contains("9")){
-            return true;
-        }
-        return false;
-    }
 
-    private int productRules(ProductDTO product) {
-        if(!(product.getName().trim().substring(0,1).equals(product.getName().trim().substring(0,1).toUpperCase())) || product.getName().equals("")){
-            return 1;
-        }
-        if(!(product.getBrand().trim().substring(0,1).equals(product.getBrand().trim().substring(0,1).toUpperCase())) || product.getBrand().equals("")){
-            return 2;
-        }
-        if(product.getQuantity() <= 0){
-            return 3;
-        }
-        if(product.getPrice() <= 0.0){
-            return 4;
-        }
-//        if(!(product.getCategory().trim().substring(0,1).equals(product.getCategory().trim().substring(0,1).toUpperCase())) || product.getCategory().equals("") || firstVerifySpecial(product.getCategory().trim()) || firstVerifyNumber(product.getCategory().trim()) || verifySpecial(product.getCategory().trim()) || verifyNumber(product.getCategory().trim())){
-//            return 5;
-//        }
-        if(product.getPercent() < 0.0){
-            return 6;
-        }
-        if(product.getDescription().trim().split(" ").length < 2 || firstVerifyNumber(product.getDescription().trim()) || firstVerifySpecial(product.getDescription().trim()) || !product.getDescription().trim().substring(0,1).equals(product.getDescription().trim().substring(0,1).toUpperCase())){
-            return 7;
-        }
-        return 8;
-    }
-
-    private void dtoForEntity(ProductDTO product, Product aux) {
-        aux.setId(product.getId());
-        aux.setName(product.getName());
-        aux.setBrand(product.getBrand());
-        aux.setQuantity(product.getQuantity());
-        aux.setPromotion(product.isPromotion());
-        aux.setPrice(product.getPrice());
-        aux.setDescription(product.getDescription());
-        aux.setPercent(product.getPercent());
-        aux.setCategory(product.getCategory());
-    }
-
-    private boolean verifyPercent(float percent){
-        if(percent < 0.0)
-            return true;
-        return false;
-    }
-
-    private boolean verifyBrand(String brand){
-        if(!(brand.trim().substring(0,1).equals(brand.trim().substring(0,1).toUpperCase())) || brand.equals(""))
-            return true;
-        return false;
-    }
-
-    private boolean verifyCategory(String category){
-        if(!(category.trim().substring(0,1).equals(category.trim().substring(0,1).toUpperCase())) || category.equals("") || firstVerifySpecial(category.trim()) || firstVerifyNumber(category.trim()) || verifySpecial(category.trim()) || verifyNumber(category.trim())){
-            return true;
-        }
-        return false;
-    }
-
-    private Product verifyIfExists(Long id) throws ProductNotFoundException{
-        return repository.findById(id).orElseThrow(()->new ProductNotFoundException(id));
-    }
-
-    private List<Product> verifyIfCategoryExists(String category) throws ProductNotFoundException{
-        return repository.findByCategoryContaining(category).orElseThrow(()->new ProductNotFoundException("Category "+ category));
-    }
-
-    private void entityForDto(List<ProductDTO> listProducts, Optional<List<Product>> resultBank) {
-        if (resultBank.isPresent()) {
-            List<Product> users = resultBank.get();
-            for (Product product : users) {
-                ProductDTO dto = new ProductDTO(product.getId(), product.getName(), product.getBrand(), product.getPriceDto(), product.getQuantity(), product.getDescription(), product.isPromotion(), product.getPercent(), product.getCategory());
-                listProducts.add(dto);
+    private void changePercent(float percent, List<Product> resultBank,String str) throws ProductNotFoundException{
+        if (!resultBank.isEmpty()) {
+            for (Product product : resultBank) {
+                product.setPercent(percent);
+                repository.save(product);
             }
+        }else {
+            throw new ProductNotFoundException(str);
+        }
+    }
+
+    private void verifyIfNameExists(String name) throws ProductBadRequestException{
+        Optional<Product> result = repository.findByNameContaining(name);
+        if(!result.isEmpty()){
+            throw new ProductBadRequestException("Name of product already exists");
         }
     }
 }

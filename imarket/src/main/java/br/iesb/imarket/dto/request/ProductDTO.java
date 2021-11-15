@@ -12,7 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductDTO {
-    private Long id;
     private String name;
     private String brand;
     private float price;
@@ -20,5 +19,5 @@ public class ProductDTO {
     private String description;
     private boolean promotion;
     private float percent;
-    private CategoryType category;
+    private String category;
 }

@@ -1,5 +1,7 @@
 package br.iesb.imarket.model.builder;
 
+import br.iesb.imarket.model.User;
+
 public class UserBuilder {
     private final User user;
 
@@ -17,22 +19,22 @@ public class UserBuilder {
     }
 
     public UserBuilder emailInUser(String email){
-        user.setemail(email);
+        user.setEmail(email);
         return this;
     }
 
     public UserBuilder passwordInUser(String password){
-        user.setpassword(password);
+        user.setPassword(password);
         return this;
     }
 
     public UserBuilder tokenInUser(String token){
-        user.settoken(token);
+        user.setToken(token);
         return this;
     }
 
-    public UserBuilder withAcesso(boolean acesso){
-        user.setacesso(acesso);
+    public UserBuilder withAcesso(boolean acess){
+        user.setAcess(acess);
         return this;
     }
 

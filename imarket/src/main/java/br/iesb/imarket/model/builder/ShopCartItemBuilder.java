@@ -1,7 +1,9 @@
 package br.iesb.imarket.model.builder;
 
+import br.iesb.imarket.model.ShopCartItem;
+
 public class ShopCartItemBuilder {
-    private final ShopCartItem shopcartitem;
+    /*private final ShopCartItem shopcartitem;
 
 
     private ShopCartItemBuilder(){
@@ -25,5 +27,7 @@ public class ShopCartItemBuilder {
     public ShopCartItem build(){
         return this.shopcartitem;
     }
+
+     */
 
 }

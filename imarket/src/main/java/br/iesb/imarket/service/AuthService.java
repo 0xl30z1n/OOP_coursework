@@ -1,30 +1,76 @@
 package br.iesb.imarket.service;
 
 import br.iesb.imarket.dto.request.UserDTO;
+import br.iesb.imarket.dto.request.UserLoginDTO;
+import br.iesb.imarket.exception.UserBadRequestException;
+import br.iesb.imarket.exception.UserNotFoundException;
 import br.iesb.imarket.model.User;
+import br.iesb.imarket.model.UserLogin;
+import br.iesb.imarket.repository.UserLoginRepo;
+import br.iesb.imarket.repository.UserRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class AuthService {
-    private  List<User> users = new ArrayList<>();
+    @Autowired
+    private UserRepo repositoyUser;
+
+    @Autowired
+    private UserLoginRepo repositoryLogin;
+
+    public List<UserDTO> getUsers() throws UserNotFoundException{
+        List<User> listUsers = verifyIfUsersExists();
+        List<UserDTO> list = new ArrayList<>();
+        for (User u: listUsers){
+            UserDTO dto = getUserDTO(u);
+            list.add(dto);
+        }
+        return list;
+    }
+
+    public List<UserLoginDTO> getUsersLog() throws UserNotFoundException{
+        List<UserLogin> listUsers = verifyIfUsersLogExists();
+        List<UserLoginDTO> list = new ArrayList<>();
+        for (UserLogin u: listUsers){
+            UserLoginDTO dto = getUserLoginDTO(u);
+            list.add(dto);
+        }
+        return list;
+    }
+
+    public UserDTO getUserById(Long id) throws UserNotFoundException{
+        UserDTO user = verifyIfUserExistsById(id);
+        return user;
+    }
+
+    public UserLoginDTO getLogById(Long id) throws UserNotFoundException{
+        UserLoginDTO user = verifyIfUserLogExistsById(id);
+        return user;
+    }
 
     public String login(UserDTO user){
         String email = user.getEmail();
         String password = user.getPassword();
 
-        for(User u : users){
-            if(u.getEmail().equals(email) && u.getPassword().equals(password)){
-                return u.getToken();
-            }
+        Optional<User> resultBank = repositoyUser.findByEmailAndPasswordContaining(email,password);
+        User userLog = resultBank.get();
+        if(userLog != null){
+            UserLogin loginSave = new UserLogin();
+            loginSave.setId(userLog.getId());
+            loginSave.setName(userLog.getName());
+            loginSave.setToken(userLog.getToken());
+            loginSave.setAcess(userLog.isAcess());
+            repositoryLogin.save(loginSave);
+            return userLog.getToken();
         }
         return null;
     }
-    public int signup(UserDTO user){
 
+    public int signup(UserDTO user) throws UserBadRequestException{
+        verifyIfEmailAndPasswordExists(user.getEmail(), user.getPassword());
         if(user.getName().trim().equals("") || user.getName().trim().split(" ").length < 2 || verifyFirstCaracName(user.getName().trim().split(" ")) || verifyNumber(user.getName().trim()) || verifySpecial(user.getName().trim())){
             return 1;
         }
@@ -38,12 +84,68 @@ public class AuthService {
         entity.setName(user.getName());
         entity.setEmail(user.getEmail());
         entity.setPassword(user.getPassword());
-        entity.setAcesso(true);
+        entity.setAcess(user.isAcess());
         String token = UUID.randomUUID().toString();
         entity.setToken(token);
-        users.add(entity);
+        repositoyUser.save(entity);
         return 0;
     }
+
+    private List<User> verifyIfUsersExists() throws UserNotFoundException {
+        Iterator<User> resultBank = repositoyUser.findAll().iterator();
+        List<User> listUsers = new ArrayList<>();
+        resultBank.forEachRemaining(listUsers::add);
+        if(listUsers.isEmpty()){
+            throw new UserNotFoundException("Bank users is empty");
+        }
+        return listUsers;
+    }
+
+    private List<UserLogin> verifyIfUsersLogExists() throws UserNotFoundException{
+        Iterator<UserLogin> resultBank = repositoryLogin.findAll().iterator();
+        List<UserLogin> listUsers = new ArrayList<>();
+        resultBank.forEachRemaining(listUsers::add);
+        if(listUsers.isEmpty()){
+            throw new UserNotFoundException("Bank users login is empty");
+        }
+        return listUsers;
+    }
+
+    private UserDTO verifyIfUserExistsById(Long id) throws UserNotFoundException{
+        User resultBank = repositoyUser.findById(id).orElseThrow(()-> new UserNotFoundException("User not found with ID "+ id));
+        return getUserDTO(resultBank);
+    }
+
+    private UserLoginDTO verifyIfUserLogExistsById(Long id) throws UserNotFoundException{
+        UserLogin resultBank = repositoryLogin.findById(id).orElseThrow(()-> new UserNotFoundException("User login not found with ID "+ id));
+        return getUserLoginDTO(resultBank);
+    }
+
+    private void verifyIfEmailAndPasswordExists(String email, String password) throws UserBadRequestException {
+        Optional<List<User>> aux = repositoyUser.findByEmailOrPasswordContaining(email,password);
+        List<User> result = aux.get();
+        if(!result.isEmpty()){
+            throw new UserBadRequestException("Email or password already exists");
+        }
+    }
+
+    private UserDTO getUserDTO(User u) {
+        UserDTO dto = new UserDTO();
+        dto.setName(u.getName());
+        dto.setEmail(u.getEmail());
+        dto.setPassword(u.getPassword());
+        dto.setAcess(u.isAcess());
+        return dto;
+    }
+
+    private UserLoginDTO getUserLoginDTO(UserLogin u) {
+        UserLoginDTO dto = new UserLoginDTO();
+        dto.setName(u.getName());
+        dto.setToken(u.getToken());
+        dto.setAcess(u.isAcess());
+        return dto;
+    }
+
     private boolean firstVerifyNumber(String str){
         if(str.substring(0,1).equals("0") || str.substring(0,1).equals("1") || str.substring(0,1).equals("2") || str.substring(0,1).equals("3") || str.substring(0,1).equals("4") || str.substring(0,1).equals("5") || str.substring(0,1).equals("6") || str.substring(0,1).equals("7") || str.substring(0,1).equals("8") || str.substring(0,1).equals("9")){
             return true;
